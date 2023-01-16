@@ -1,0 +1,58 @@
+version: '2'
+services:
+  # nest_api:
+  #   container_name: nestjs_api_dev
+  #   image: nestjs-api-dev:1.0.0
+  #   build:
+  #     context: .
+  #     # target: development
+  #     dockerfile: ./Dockerfile
+  #   command: npm run start:dev
+  #   links:
+  #     - mariaDB_api:db
+  #   ports:
+  #     - 8888:3000
+  #     - 9229:9229
+
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   restart: unless-stopped
+
+  mariaDB_api:
+    image: arm64v8/mariadb
+    # image: mariadb
+    hostname: mariaDB_api
+    container_name: mariaDB_api
+    restart: always
+    volumes:
+      - ./docker/mariadb/data/:/var/lib/mysql
+    command:
+      [
+        'mysqld',
+        '--character-set-server=utf8',
+        '--collation-server=utf8_general_ci'
+      ]
+
+    ports:
+      - 3306:3306
+    environment:
+      - TZ=Asia/Bangkok
+      - MYSQL_ROOT_PASSWORD=docker
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=docker
+      - MYSQL_ROOT_HOST=%
+
+  phpmyadmin_api:
+    # image: arm64v8/phpmyadmin
+    image: phpmyadmin
+    restart: always
+    links:
+      - mariaDB_api:db
+    ports:
+       - 8300:80
+    environment:
+      MYSQL_USERNAME: root
+      MYSQL_ROOT_PASSWORD: docker
+      PMA_HOST: mariaDB_api
+
